@@ -1,0 +1,11 @@
+{
+  "domain": "kittentts",
+  "name": "KittenTTS",
+  "version": "0.1.0",
+  "documentation": "https://github.com/duckida/kittentts-ha",
+  "dependencies": [],
+  "codeowners": ["@duckida"],
+  "requirements": ["kittentts==0.1.0", "soundfile==0.12.1"],
+  "iot_class": "local_push",
+  "config_flow": true
+}

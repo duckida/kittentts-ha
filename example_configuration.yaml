@@ -1,0 +1,27 @@
+# Example configuration.yaml entries for KittenTTS
+
+# Basic configuration
+tts:
+  - platform: kittentts
+
+# Advanced configuration with specific options
+tts:
+  - platform: kittentts
+    language: "en"
+    voice: "expr-voice-3-f"
+    model: "KittenML/kitten-tts-nano-0.2"
+
+# Example automation using KittenTTS
+automation:
+  - alias: "Announce doorbell"
+    trigger:
+      platform: state
+      entity_id: binary_sensor.doorbell
+      to: "on"
+    action:
+      service: tts.speak
+      target:
+        entity_id: tts.kittentts
+      data:
+        message: "Someone is at the door"
+        cache: true

@@ -1,0 +1,15 @@
+{
+  "title": "KittenTTS",
+  "config": {
+    "step": {
+      "user": {
+        "title": "KittenTTS Configuration",
+        "data": {
+          "language": "Language",
+          "voice": "Voice",
+          "model": "Model"
+        }
+      }
+    }
+  }
+}
