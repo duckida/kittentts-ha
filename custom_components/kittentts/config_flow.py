@@ -5,7 +5,7 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow
+from homeassistant.config_entries import ConfigFlow, OptionsFlow
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.core import callback
 
@@ -51,7 +51,7 @@ class KittenTTSConfigFlow(ConfigFlow, domain=DOMAIN):
         return KittenTTSOptionsFlowHandler(config_entry)
 
 
-class KittenTTSOptionsFlowHandler(config_entries.OptionsFlow):
+class KittenTTSOptionsFlowHandler(OptionsFlow):
     """Handle KittenTTS options."""
 
     def __init__(self, config_entry):
