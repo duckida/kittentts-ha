@@ -1,14 +1,24 @@
-"""KittenTTS text-to-speech provider."""
+"""TTS platform for KittenTTS."""
+import asyncio
 import io
 import logging
 import voluptuous as vol
-from homeassistant.components.tts import CONF_LANG, PLATFORM_SCHEMA, Provider
+from typing import Any
+
+from homeassistant.components.tts import (
+    PLATFORM_SCHEMA,
+    Provider,
+    TtsAudioType,
+    Voice,
+)
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.typing import ConfigType
 import homeassistant.helpers.config_validation as cv
 
-_LOGGER = logging.getLogger(__name__)
+from .const import DOMAIN, CONF_VOICE, CONF_MODEL
 
-CONF_VOICE = "voice"
-CONF_MODEL = "model"
+_LOGGER = logging.getLogger(__name__)
 
 DEFAULT_LANG = "en"
 DEFAULT_VOICE = "expr-voice-2-f"
@@ -24,27 +34,34 @@ VOICES = [
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Optional(CONF_LANG, default=DEFAULT_LANG): cv.string,
         vol.Optional(CONF_VOICE, default=DEFAULT_VOICE): vol.In(VOICES),
         vol.Optional(CONF_MODEL, default=DEFAULT_MODEL): cv.string,
     }
 )
 
-async def async_get_engine(hass, config, discovery_info=None):
-    """Set up KittenTTS speech component."""
-    lang = config.get(CONF_LANG, DEFAULT_LANG)
-    voice = config.get(CONF_VOICE, DEFAULT_VOICE)
-    model = config.get(CONF_MODEL, DEFAULT_MODEL)
+async def async_get_engine(
+    hass: HomeAssistant, config: ConfigType, discovery_info=None
+) -> Provider:
+    """Set up KittenTTS TTS component."""
+    # For config flow based integrations, we get config from hass.data
+    if DOMAIN in hass.data:
+        conf = hass.data[DOMAIN]
+    else:
+        # Fallback for YAML configuration
+        conf = config
     
-    return KittenTTSProvider(lang, voice, model)
+    voice = conf.get(CONF_VOICE, DEFAULT_VOICE)
+    model = conf.get(CONF_MODEL, DEFAULT_MODEL)
+    
+    return KittenTTSProvider(hass, voice, model)
 
 
 class KittenTTSProvider(Provider):
-    """The KittenTTS API provider."""
+    """KittenTTS TTS provider."""
 
-    def __init__(self, lang: str, voice: str, model: str) -> None:
+    def __init__(self, hass: HomeAssistant, voice: str, model: str) -> None:
         """Initialize the provider."""
-        self._lang = lang
+        self.hass = hass
         self._voice = voice
         self._model = model
         self.name = "KittenTTS"
@@ -69,26 +86,28 @@ class KittenTTSProvider(Provider):
             self._kittentts = None
 
     @property
-    def default_language(self):
+    def default_language(self) -> str:
         """Return the default language."""
-        return self._lang
+        return DEFAULT_LANG
 
     @property
-    def supported_languages(self):
+    def supported_languages(self) -> list[str]:
         """Return list of supported languages."""
-        return [self._lang]
+        return [DEFAULT_LANG]
 
     @property
-    def supported_options(self):
+    def supported_options(self) -> list[str]:
         """Return list of supported options."""
         return [CONF_VOICE]
 
     @property
-    def default_options(self):
+    def default_options(self) -> dict[str, Any]:
         """Return a dict including default options."""
         return {CONF_VOICE: self._voice}
 
-    async def async_get_tts_audio(self, message, language, options=None):
+    async def async_get_tts_audio(
+        self, message: str, language: str, options: dict[str, Any] | None = None
+    ) -> TtsAudioType:
         """Load TTS audio."""
         # Try to import KittenTTS if not already imported
         if self._kittentts is None:
@@ -97,7 +116,7 @@ class KittenTTSProvider(Provider):
         if self._kittentts is None:
             _LOGGER.error("KittenTTS is not available. Please ensure it is properly installed "
                          "and compatible with your Home Assistant environment.")
-            return (None, None)
+            return None
             
         try:
             # Get the voice from options or use default
@@ -112,7 +131,7 @@ class KittenTTSProvider(Provider):
             sf.write(buf, audio_data, 24000, format='WAV')
             buf.seek(0)
             
-            return ("audio/wav", buf.read())
+            return ("wav", buf.read())
         except Exception as e:
             _LOGGER.error("Error generating speech with KittenTTS: %s", e)
-            return (None, None)
+            return None

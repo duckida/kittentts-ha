@@ -5,7 +5,17 @@
       "user": {
         "title": "KittenTTS Configuration",
         "data": {
-          "language": "Language",
+          "voice": "Voice",
+          "model": "Model"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "KittenTTS Options",
+        "data": {
           "voice": "Voice",
           "model": "Model"
         }
