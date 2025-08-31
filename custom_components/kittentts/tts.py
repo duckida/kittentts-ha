@@ -71,8 +71,13 @@ class KittenTTSProvider(Provider):
         try:
             from kittentts import KittenTTS
             self._kittentts = KittenTTS(model)
-        except ImportError:
-            _LOGGER.error("KittenTTS is not installed. Please install it using pip.")
+        except ImportError as e:
+            _LOGGER.warning("KittenTTS is not installed or not compatible with your system. "
+                          "Please check the KittenTTS documentation for Python 3.13 compatibility. "
+                          "Error: %s", e)
+            self._kittentts = None
+        except Exception as e:
+            _LOGGER.error("Error initializing KittenTTS: %s", e)
             self._kittentts = None
 
     @property
@@ -98,7 +103,8 @@ class KittenTTSProvider(Provider):
     async def async_get_tts_audio(self, message, language, options=None):
         """Load TTS audio."""
         if self._kittentts is None:
-            _LOGGER.error("KittenTTS is not available")
+            _LOGGER.error("KittenTTS is not available. Please ensure it is properly installed "
+                         "and compatible with your system.")
             return (None, None)
             
         try:
@@ -116,5 +122,5 @@ class KittenTTSProvider(Provider):
             
             return ("audio/wav", buf.read())
         except Exception as e:
-            _LOGGER.error("Error generating speech: %s", e)
+            _LOGGER.error("Error generating speech with KittenTTS: %s", e)
             return (None, None)
