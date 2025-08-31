@@ -4,11 +4,6 @@ import logging
 import voluptuous as vol
 from homeassistant.components.tts import CONF_LANG, PLATFORM_SCHEMA, Provider
 import homeassistant.helpers.config_validation as cv
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers.typing import ConfigType
-
-from . import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -35,12 +30,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     }
 )
 
-async def async_get_engine(hass: HomeAssistant, config: ConfigType, discovery_info=None):
+async def async_get_engine(hass, config, discovery_info=None):
     """Set up KittenTTS speech component."""
-    # If set up via config entry, use those options
-    if discovery_info is not None:
-        config = discovery_info
-    
     lang = config.get(CONF_LANG, DEFAULT_LANG)
     voice = config.get(CONF_VOICE, DEFAULT_VOICE)
     model = config.get(CONF_MODEL, DEFAULT_MODEL)
