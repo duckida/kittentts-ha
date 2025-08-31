@@ -68,14 +68,20 @@ class KittenTTSProvider(Provider):
         self.name = "KittenTTS"
         
         # Import KittenTTS here to avoid issues if the component is not used
+        self._kittentts = None
+        self._check_kittentts_availability()
+
+    def _check_kittentts_availability(self):
+        """Check if KittenTTS is available and import it."""
         try:
-            from kittentts import KittenTTS
-            self._kittentts = KittenTTS(model)
+            import kittentts
+            self._kittentts = kittentts.KittenTTS(self._model)
+            _LOGGER.info("KittenTTS successfully initialized with model: %s", self._model)
         except ImportError as e:
-            _LOGGER.warning("KittenTTS is not installed or not compatible with your system. "
+            _LOGGER.warning("KittenTTS is not available or not compatible with your system. "
                           "Please check the KittenTTS documentation for Python 3.13 compatibility. "
+                          "You may need to manually install KittenTTS in your Home Assistant environment. "
                           "Error: %s", e)
-            self._kittentts = None
         except Exception as e:
             _LOGGER.error("Error initializing KittenTTS: %s", e)
             self._kittentts = None
@@ -102,9 +108,13 @@ class KittenTTSProvider(Provider):
 
     async def async_get_tts_audio(self, message, language, options=None):
         """Load TTS audio."""
+        # Try to import KittenTTS if not already imported
+        if self._kittentts is None:
+            self._check_kittentts_availability()
+            
         if self._kittentts is None:
             _LOGGER.error("KittenTTS is not available. Please ensure it is properly installed "
-                         "and compatible with your system.")
+                         "and compatible with your Home Assistant environment.")
             return (None, None)
             
         try:

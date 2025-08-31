@@ -8,47 +8,42 @@ KittenTTS is an ultra-lightweight (under 25MB) text-to-speech model with only 15
 
 ## Installation
 
-### Prerequisites
+### For Home Assistant OS / Supervised / Container Users
 
-Due to Python 3.13 compatibility issues with some of KittenTTS's dependencies, manual installation is required:
+1. Add this repository to HACS:
+   - Go to HACS → Integrations
+   - Click the three dots in the top right corner
+   - Select "Custom repositories"
+   - Add `https://github.com/duckida/kittentts-ha` as a custom repository with category "Integration"
+   - Click "Explore & Download Repositories"
+   - Find "KittenTTS" and click "Download"
 
-1. Install the required system dependencies:
-   ```bash
-   # On Debian/Ubuntu:
-   sudo apt-get install libsndfile1
-   
-   # On macOS with Homebrew:
-   brew install libsndfile
-   ```
+2. Restart Home Assistant
 
-2. Install KittenTTS manually with compatible dependencies:
-   ```bash
-   pip install https://github.com/KittenML/KittenTTS/releases/download/0.1/kittentts-0.1.0-py3-none-any.whl
-   ```
-   
-   If you encounter dependency issues, try:
-   ```bash
-   pip install "kittentts>=0.1.0" "spacy>=3.8.0" "numpy>=1.26.0" "misaki>=0.7.4" "phonemizer>=3.2.0"
-   ```
+3. Add the integration:
+   - Go to Settings → Devices & Services
+   - Click "Add Integration"
+   - Search for "KittenTTS" and select it
+   - Follow the configuration steps
 
-3. Copy the `kittentts` folder to your Home Assistant's `custom_components` directory:
+### For Advanced Users (Manual Installation)
+
+1. Copy the `kittentts` folder to your Home Assistant's `custom_components` directory:
    ```
    <config_dir>/custom_components/kittentts/
    ```
 
-4. Restart Home Assistant
+2. Restart Home Assistant
+
+3. Add the integration via the UI (Settings → Devices & Services → Add Integration → KittenTTS)
 
 ## Configuration
 
-Add the following to your `configuration.yaml` file:
+Configuration is done through the UI during the integration setup. You can configure:
 
-```yaml
-tts:
-  - platform: kittentts
-    language: "en"
-    voice: "expr-voice-2-f"  # Optional, see available voices below
-    model: "KittenML/kitten-tts-nano-0.2"  # Optional
-```
+- Language (default: "en")
+- Voice (default: "expr-voice-2-f")
+- Model (default: "KittenML/kitten-tts-nano-0.2")
 
 ### Available Voices
 
@@ -87,24 +82,42 @@ data:
 
 ## Troubleshooting
 
-### Python 3.13 Compatibility Issues
+### Python 3.13 Compatibility
 
-Home Assistant uses Python 3.13, which may cause compatibility issues with some of KittenTTS's dependencies. If you encounter installation errors, try these solutions:
+Home Assistant uses Python 3.13, which may cause compatibility issues with some of KittenTTS's dependencies. The integration includes compatible versions of dependencies in the manifest, but if you encounter issues:
 
-1. Install system dependencies first (as shown above)
-2. Use the direct wheel installation method
-3. If problems persist, check the [KittenTTS GitHub repository](https://github.com/KittenML/KittenTTS) for updated installation instructions
+1. Check the Home Assistant logs for specific error messages
+2. Ensure you're using the latest version of this integration
+3. If problems persist, please open an issue on the GitHub repository
+
+### Alternative Installation Method
+
+If the automatic dependency installation fails, you can try manually installing the KittenTTS wheel:
+
+1. Download the wheel file:
+   ```
+   https://github.com/KittenML/KittenTTS/releases/download/0.1/kittentts-0.1.0-py3-none-any.whl
+   ```
+
+2. For Home Assistant Container users, you can install it directly in the container:
+   ```
+   docker exec -it homeassistant pip install https://github.com/KittenML/KittenTTS/releases/download/0.1/kittentts-0.1.0-py3-none-any.whl
+   ```
+
+3. For Home Assistant OS users, this method is not recommended as it requires accessing the underlying OS.
 
 ### Common Error Messages
 
-- `No solution found when resolving dependencies`: This is related to Python 3.13 compatibility. Use the direct wheel installation method.
-- `kittentts is not available`: Ensure KittenTTS is properly installed and compatible with your system.
+- `kittentts is not available`: This indicates that KittenTTS could not be imported. Check the Home Assistant logs for more details.
+- Dependency resolution errors: These are handled by Home Assistant's package management system.
 
 ## Requirements
 
-- Home Assistant 2023.5 or newer
-- KittenTTS package
-- soundfile package
+The integration automatically installs the following dependencies:
+- soundfile==0.12.1
+- numpy>=1.26.0
+- spacy>=3.8.0
+- phonemizer>=3.2.0
 
 ## Author
 
