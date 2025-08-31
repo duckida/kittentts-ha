@@ -48,15 +48,6 @@ async def async_get_engine(hass: HomeAssistant, config: ConfigType, discovery_in
     return KittenTTSProvider(lang, voice, model)
 
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, async_add_entities):
-    """Set up KittenTTS from a config entry."""
-    lang = config_entry.options.get(CONF_LANG, config_entry.data.get(CONF_LANG, DEFAULT_LANG))
-    voice = config_entry.options.get(CONF_VOICE, config_entry.data.get(CONF_VOICE, DEFAULT_VOICE))
-    model = config_entry.options.get(CONF_MODEL, config_entry.data.get(CONF_MODEL, DEFAULT_MODEL))
-    
-    async_add_entities([KittenTTSProvider(lang, voice, model)])
-
-
 class KittenTTSProvider(Provider):
     """The KittenTTS API provider."""
 
